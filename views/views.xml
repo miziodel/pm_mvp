@@ -1,0 +1,60 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+    <!--
+    <record model="ir.ui.view" id="pm_mvp.list">
+      <field name="name">pm_mvp list</field>
+      <field name="model">pm_mvp.pm_mvp</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="value"/>
+          <field name="value2"/>
+        </tree>
+      </field>
+    </record>
+    -->
+
+    <!-- actions opening views on models -->
+    <!--
+    <record model="ir.actions.act_window" id="pm_mvp.action_window">
+      <field name="name">pm_mvp window</field>
+      <field name="res_model">pm_mvp.pm_mvp</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+    -->
+
+    <!-- server action to the one above -->
+    <!--
+    <record model="ir.actions.server" id="pm_mvp.action_server">
+      <field name="name">pm_mvp server</field>
+      <field name="model_id" ref="model_pm_mvp_pm_mvp"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": self._name,
+        }
+      </field>
+    </record>
+    -->
+
+    <!-- Top menu item -->
+    <!--
+    <menuitem name="pm_mvp" id="pm_mvp.menu_root"/>
+    -->
+    <!-- menu categories -->
+    <!--
+    <menuitem name="Menu 1" id="pm_mvp.menu_1" parent="pm_mvp.menu_root"/>
+    <menuitem name="Menu 2" id="pm_mvp.menu_2" parent="pm_mvp.menu_root"/>
+    -->
+    <!-- actions -->
+    <!--
+    <menuitem name="List" id="pm_mvp.menu_1_list" parent="pm_mvp.menu_1"
+              action="pm_mvp.action_window"/>
+    <menuitem name="Server to list" id="pm_mvp" parent="pm_mvp.menu_2"
+              action="pm_mvp.action_server"/>
+    -->
+  </data>
+</odoo>
