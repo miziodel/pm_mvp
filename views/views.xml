@@ -1,19 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <data>
-    <!-- explicit list view definition -->
-    <!--
-    <record model="ir.ui.view" id="pm_mvp.list">
-      <field name="name">pm_mvp list</field>
-      <field name="model">pm_mvp.pm_mvp</field>
-      <field name="arch" type="xml">
-        <tree>
-          <field name="name"/>
-          <field name="value"/>
-          <field name="value2"/>
-        </tree>
-      </field>
-    </record>
-    -->
 
     <!-- project.project inherit form view -->
     <record id="pm_mvp.project_view_form" model="ir.ui.view">
@@ -21,9 +8,32 @@
       <field name="model">project.project</field>
       <field name="inherit_id" ref="project.edit_project"/>
       <field name="arch" type="xml">
+        <!-- <button name="toggle_active" position="before">
+          <button  class="oe_stat_button" name="attachment_tree_view" type="object" icon="fa-files-o">
+              <field string="Planned hours" name="task_planned_hours" widget="statinfo"/>
+          </button>
+        </button> -->
+        <xpath expr="//page[@name='settings']" position="before">
+            <page name="monitor_page" string="Monitoring">
+              <group>
+                <field name="priority" />
+                <field name="project_budget_hours" />
+                <field name="task_planned_hours" />
+                <field name="task_active_planned_hours" />
+              </group>
+            </page>
+        </xpath>
+        <!-- activity/mail/notes widget -->
         <field name="message_follower_ids"
                position="after">
             <field name="activity_ids" widget="mail_activity"/>
+            <field name="message_ids" widget="mail_thread"/>
+        </field>
+        <!-- milestones info -->
+        <field name="project_task_ids" position="after">
+          <field name="milestone_budget_hours"/>
+          <field name="mls_task_planned_hours"/>
+          <field name="mls_task_active_planned_hours"/>
         </field>
       </field>
     </record>
@@ -60,32 +70,151 @@
     <record id="pm_mvp.project_view_list" model="ir.ui.view">
       <field name="name">project.project.inherit.view.tree</field>
       <field name="model">project.project</field>
+      <field name="type">tree</field>
       <field name="inherit_id" ref="project.view_project"/>
+      <field name="field_parent">child_ids</field>
       <field name="arch" type="xml">
-        <!-- <xpath expr="/tree" position="attributes">
-          <attribute name="editable">Bottom</attribute>
-        </xpath> -->
+        <tree position="attributes">
+          <attribute name="editable">bottom</attribute>
+          <attribute name="decoration-danger">project_budget_hours &lt; task_planned_hours</attribute>
+          <attribute name="decoration-muted">active == False</attribute>
+        </tree>
+        <field name="name" position="attributes">
+          <attribute name="readonly">1</attribute>
+        </field>
+        <field name="user_id" position="attributes">
+          <attribute name="readonly">1</attribute>
+        </field>
+        <field name="partner_id" position="attributes">
+          <attribute name="readonly">1</attribute>
+        </field>
         <field name="name" position="after">
             <!-- <field name="date_start"/> -->
             <field name="date"/>
-            <field name="project_status"/>
+            <field name="priority"/>
+            <field name="project_budget_hours" string="budget"/>
+            <field name="task_planned_hours" string="planned tot"/>
+            <field name="task_active_planned_hours" string="planned todo"/>
+            <!-- <field name="project_status"/> -->
         </field>
         <field name="partner_id" position="after">
-            <field name="activity_ids" widget="kanban_activity"/>
+            <field name="activity_ids" widget="kanban_activity" string="next"/>
             <field name="activity_state" invisible="1"/>
-            <button name="open_project_view" string="edit" type="object"/>
-            <!-- <button name="open_tasks" string="manage" type="object"/> -->
-            <button type="object" name="open_tasks" string="manage">
-            </button>
+            <button name="open_project_view" string="edit" type="object" icon="fa-edit"/>
+            <button name="open_tasks" string="tasks" type="object" icon="fa-tachometer"/>
         </field>
+        <field name="key" position="replace"/>
+        <field name="milestone_ids" position="replace"/>
       </field>
-    </record>
+    </record>    
 
-    <!-- model.name action window -->
+    <!-- open_view_project_all action window -->
     <record id="project.open_view_project_all" model="ir.actions.act_window">
       <field name="view_mode">kanban,form,activity,timeline</field>
     </record>
 
+    <!-- project.milestone inherit form view -->
+    <record id="pm_mvp.milestone_view_form" model="ir.ui.view">
+      <field name="name">project.milestone.inherit.view.form</field>
+      <field name="model">project.milestone</field>
+      <field name="inherit_id" ref="project_milestone.project_milestone_view_form"/>
+      <field name="arch" type="xml">
+        <field name="project_id" position="after">
+          <field name="milestone_budget_hours"/>
+          <field name="date_start"/>
+        </field>
+      </field>
+    </record>
+
+
+    <!-- All milestones menuitem -->
+    <!-- <menuitem name="All Milestones" id="menu_project_management" parent="project.menu_main_pm"
+              action="action_view_milestone_2" sequence="150" 
+              groups="base.group_no_one,group_project_user"/> -->
+
+    <!-- milestone management tree view -->
+    <record id="action_view_milestone" model="ir.actions.act_window">
+        <field name="name">Milestones</field>
+        <field name="res_model">project.milestone</field>
+        <field name="view_mode">tree</field>
+        <!-- <field name="context">{'search_default_my_tasks': 1}</field> -->
+        <!-- <field name="search_view_id" ref="view_milestone_search_form"/> -->
+        <!-- <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new task
+            </p><p>
+                Odoo's project management allows you to manage the pipeline of your tasks efficiently.<br/>
+                You can track progress, discuss on tasks, attach documents, etc.
+            </p>
+        </field> -->
+    </record>
+
+    <!-- project.milestone tree view -->
+    <record id="project_milestone_pm_mvp_view_tree" model="ir.ui.view">
+      <field name="name">project.milestone.pm_mvp.view.tree</field>
+      <field name="model">project.milestone</field>
+      <field name="arch" type="xml">
+          <tree default_order='project_id,target_date, sequence'>
+              <!-- <field name="sequence"
+                      widget="handle"/> -->
+              <field name="name"/>
+              <field name="project_id"/>
+              <field name="target_date"/>
+              <field name="project_task_ids"/>
+              <field name="progress"
+                      widget="progressbar"/>
+          </tree>
+      </field>
+    </record>
+
+    <!-- project.milestone timeline -->
+    <record id="project_milestone_timeline" model="ir.ui.view">
+        <field name="model">project.milestone</field>
+        <field name="type">timeline</field>
+        <field name="arch" type="xml">
+            <timeline date_start="date_start"
+                      date_stop="target_date"
+                      default_group_by="project_id"
+                      event_open_popup="true">
+              <field name="progress"/>
+              <field name="milestone_budget_hours"/>
+              <field name="mls_task_planned_hours"/>
+              <templates>
+                    <t t-name="timeline-item">
+                        <div class="o_project_timeline_item">
+                            <span name="display_name">
+                                <t t-esc="record.display_name"/>
+                            </span>
+                            <small name="milestone_budget_hours" class="text-muted ml4">
+                                bdg:
+                                <t t-esc="record.milestone_budget_hours"/>
+                                plan:
+                                <!-- <t t-esc="field_utils.format.float_time(record.mls_task_planned_hours)"/> -->
+                                <t t-esc="record.mls_task_planned_hours"/>
+                            </small>
+                        </div>
+                        <div class="o_project_timeline_hr_timesheet_progress">
+                            <div t-att-class="record.progress > 100 and 'danger'"
+                                t-attf-style="width: #{record.progress}%" />
+                        </div>
+                    </t>
+                </templates>
+            </timeline>
+        </field>
+    </record>
+
+
+    <!-- project.task inherit form view -->
+    <record id="pm_mvp.project_task_tree2" model="ir.ui.view">
+      <field name="name">project.task.inherit.view.tree</field>
+      <field name="model">project.task</field>
+      <field name="inherit_id" ref="project.view_task_tree2"/>
+      <field name="arch" type="xml">
+        <field name="project_id" position="after">
+          <field name="milestone_id"/>
+        </field>
+      </field>
+    </record>
 
     <!-- actions opening views on models -->
     <!--
