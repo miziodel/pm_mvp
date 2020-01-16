@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- FORM VIEW -->
+    <record id="pm_mvp.milestone_view_form" model="ir.ui.view">
+      <field name="name">project.milestone.inherit.view.form</field>
+      <field name="model">project.milestone</field>
+      <field name="inherit_id" ref="project_milestone.project_milestone_view_form"/>
+      <field name="arch" type="xml">
+        <field name="project_id" position="after">
+          <field name="milestone_budget_hours"/>
+          <field name="date_start"/>
+        </field>
+      </field>
+    </record>
+
+    <!-- milestone management TREE VIEW -->
+    <record id="action_view_milestone" model="ir.actions.act_window">
+        <field name="name">Milestones</field>
+        <field name="res_model">project.milestone</field>
+        <field name="view_mode">tree</field>
+        <!-- <field name="context">{'search_default_my_tasks': 1}</field> -->
+        <!-- <field name="search_view_id" ref="view_milestone_search_form"/> -->
+        <!-- <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new task
+            </p><p>
+                Odoo's project management allows you to manage the pipeline of your tasks efficiently.<br/>
+                You can track progress, discuss on tasks, attach documents, etc.
+            </p>
+        </field> -->
+    </record>
+
+    <!-- project.milestone TREE VIEW update-->
+    <record id="project_milestone_pm_mvp_view_tree_inherit" model="ir.ui.view">
+      <field name="name">project.milestone.pm_mvp.view.tree</field>
+      <field name="model">project.milestone</field>
+      <field name="inherit_id" ref="project_milestone.project_milestone_view_list"/>
+      <field name="arch" type="xml">
+          <field name="project_task_ids" position="after">
+              <field name="milestone_budget_hours"/>
+              <field name="mls_task_planned_hours"/>
+          </field>
+      </field>
+    </record>
+    
+
+    <!-- TIMELINE -->
+    <record id="project_milestone_timeline" model="ir.ui.view">
+        <field name="model">project.milestone</field>
+        <field name="type">timeline</field>
+        <field name="arch" type="xml">
+            <timeline date_start="date_start"
+                      date_stop="target_date"
+                      default_group_by="project_id"
+                      event_open_popup="true">
+              <field name="progress"/>
+              <field name="milestone_budget_hours"/>
+              <field name="mls_task_planned_hours"/>
+              <templates>
+                    <t t-name="timeline-item">
+                        <div class="o_project_timeline_item">
+                            <span name="display_name">
+                                <t t-esc="record.display_name"/> <br/>
+                            </span>
+                            <small name="milestone_budget_hours" class="ml4">
+                                bdg:
+                                <t t-esc="record.milestone_budget_hours"/>
+                                plan:
+                                <!-- <t t-esc="field_utils.format.float_time(record.mls_task_planned_hours)"/> -->
+                                <t t-esc="record.mls_task_planned_hours"/>
+                            </small>
+                        </div>
+                        <div class="o_project_timeline_hr_timesheet_progress">
+                            <div t-att-class="record.progress > 100 and 'danger'"
+                                t-attf-style="width: #{record.progress}%" />
+                        </div>
+                    </t>
+                </templates>
+            </timeline>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="pm_mvp.view_search" model="ir.ui.view">
+        <field name="name">project.task.enhancement.milestone.search.form</field>
+        <field name="model">project.task</field>
+        <field name="sequence">100</field>
+        <field name="inherit_id" ref="project.view_task_search_form"/>
+        <field name="arch" type="xml">
+            <field name="stage_id" position="after">
+                <field name="milestone_id"/>                
+            </field>
+        </field>
+    </record>
+
+    <!-- pulsante "milestone" in form view progetto -->
+    <record id="pm_mvp.act_project_project_2_project_milestone_all" model="ir.actions.act_window">
+        <field name="name">Milestones</field>
+        <field name="res_model">project.milestone</field>
+        <field name="view_mode">timeline,kanban,tree</field>
+        <field name="context">{
+            'search_default_project_id': [active_id],
+            'default_project_id': active_id,
+        }</field>
+        <field name="search_view_id" ref="project_milestone.project_milestone_view_search"/>
+        <!-- <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Click <i>Create</i> to start a new task.
+            </p><p>
+                To get things done, use activities and status on tasks.<br/>
+                Chat in real time or by email to collaborate efficiently.
+            </p>
+        </field> -->
+    </record>
+
+    <!-- All Milestones menuitem -->
+    <!-- useless: already present in the project config menu -->
+    <!-- <menuitem id="menu_project_management_all_milestone" 
+              name="All Milestones test" 
+              parent="project.menu_main_pm"
+              action="project_milestone.project_milestone_action" 
+              sequence="150" 
+              groups="base.group_no_one,project.group_project_user"/> -->
+
+
+  </data>
+</odoo>

@@ -36,12 +36,16 @@
                 'project_key',
                 'project_milestone',
                 'project_parent_task_filter',
+                'project_tag',
+                'project_timesheet_time_control',
                 ],
 
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
-        'views/views.xml',
+        'views/milestone_views.xml',
+        'views/project_views.xml',
+        'views/task_views.xml',
         'views/templates.xml',
     ],
     # only loaded in demonstration mode
